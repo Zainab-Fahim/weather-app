@@ -36,7 +36,11 @@ function DefaultLocationModal({
             getOptionLabel={(option) => typeof option === 'string' ? option : option.name}
             onInputChange={handleInputChange}
             onChange={(event, newValue) => {
-              setCustomDefaultLocation(typeof newValue === 'string' ? newValue : newValue.name);
+              if (!newValue) {
+                setCustomDefaultLocation('');
+              } else {
+                setCustomDefaultLocation(typeof newValue === 'string' ? newValue : newValue.name);
+              }
             }}
             value={customDefaultLocation}
             sx={{ flexGrow: 1 }}

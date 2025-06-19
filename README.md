@@ -1,70 +1,75 @@
-# Getting Started with Create React App
+# Weather App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project is a full-stack weather application with a React frontend and an Express backend. The backend proxies requests to external weather and chat APIs and CORS issues.
 
-## Available Scripts
+## Folder Structure
 
-In the project directory, you can run:
+- `client/` — React frontend
+- `server/` — Express backend
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Setup Instructions
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 1. Clone the Repository
 
-### `npm test`
+```bash
+git clone <your-repo-url>
+cd weather-app
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 2. Server Setup (`server/`)
 
-### `npm run build`
+```bash
+cd server
+npm install
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+#### Create a `.env` file in `client/` (see below for variables)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+#### Start the server (default port: 5050)
+```bash
+node src/index.js
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 3. Client Setup (`client/`)
 
-### `npm run eject`
+```bash
+cd ../client
+npm install
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+#### Start the React app (default port: 3000)
+```bash
+npm start
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Environment Variables
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Create a `.env` file in the `client/` directory with the following variables:
 
-## Learn More
+```
+REACT_APP_WEATHER_CHAT_TOKEN_URL=http://localhost:5050/api/token
+REACT_APP_WEATHER_CHAT_API_URL=http://localhost:5050/api/chat
+REACT_APP_WEATHER_CHAT_CLIENT_KEY=your_client_key_here
+REACT_APP_WEATHER_CHAT_CLIENT_SECRET=your_client_secret_here
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- Replace `your_client_key_here` and `your_client_secret_here` with your actual credentials.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+---
 
-### Code Splitting
+## Usage
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- The React app will be available at [http://localhost:3000](http://localhost:3000)
+- The Express server will run at [http://localhost:5050](http://localhost:5050)
+- The backend proxies token and chat requests to the external API, so your frontend never deals with CORS issues or secrets directly.
 
-### Analyzing the Bundle Size
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Troubleshooting
 
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- If you see CORS or network errors, ensure both the server and client are running and the ports match your `.env` settings.
+- If port 5050 is in use, change the `PORT` in `server/src/index.js` and update your `.env` accordingly.

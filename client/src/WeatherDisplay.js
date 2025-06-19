@@ -61,77 +61,73 @@ function WeatherDisplay({ setThemeMode, themeMode }) {
     [apiKey]
   );
 
+  const fetchAllWeatherData = useCallback(async (loc) => {
+    if (!loc) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const currentWeatherResponse = await fetch(`https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${loc}&aqi=yes`);
+      if (!currentWeatherResponse.ok) {
+        throw new Error(`HTTP error! status: ${currentWeatherResponse.status} for current weather`);
+      }
+      const currentData = await currentWeatherResponse.json();
+      setWeatherData(currentData);
+
+      const forecastResponse = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${loc}&days=3&alerts=yes&aqi=yes`);
+      if (!forecastResponse.ok) {
+        throw new Error(`HTTP error! status: ${forecastResponse.status} for forecast`);
+      }
+      const forecastData = await forecastResponse.json();
+      setForecastData(forecastData);
+      setAlertsData(forecastData.alerts?.alert || []);
+
+      const today = new Date().toISOString().slice(0, 10);
+      const astronomyResponse = await fetch(`https://api.weatherapi.com/v1/astronomy.json?key=${apiKey}&q=${loc}&dt=${today}`);
+      if (!astronomyResponse.ok) {
+        throw new Error(`HTTP error! status: ${astronomyResponse.status} for astronomy`);
+      }
+      const astronomyData = await astronomyResponse.json();
+      setAstronomyData(astronomyData.astronomy.astro);
+    } catch (error) {
+      setError(error);
+      console.error("Error fetching all weather data:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [apiKey]);
+
   useEffect(() => {
-    const fetchAllWeatherData = async () => {
-      let initialLocation = location;
-      const savedDefaultLocation = Cookies.get('defaultLocation');
-
-      if (savedDefaultLocation) {
-        if (savedDefaultLocation === 'current_location') {
-          setDefaultLocationType('current');
-          if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(async (position) => {
-              const { latitude, longitude } = position.coords;
-              initialLocation = `${latitude},${longitude}`;
-              setLocation(initialLocation);
-            }, (geoError) => {
-              console.error("Error getting current location:", geoError);
-              setError(new Error("Unable to retrieve current location. Defaulting to Colombo."));
-              initialLocation = 'Colombo,Sri Lanka';
-              setLocation(initialLocation);
-            });
-          } else {
-            setError(new Error("Geolocation not supported. Defaulting to Colombo."));
-            initialLocation = 'Colombo,Sri Lanka';
-            setLocation(initialLocation);
-          }
+    const savedDefaultLocation = Cookies.get('defaultLocation');
+    if (savedDefaultLocation) {
+      if (savedDefaultLocation === 'current_location') {
+        setDefaultLocationType('current');
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition((position) => {
+            const { latitude, longitude } = position.coords;
+            setLocation(`${latitude},${longitude}`);
+          }, (geoError) => {
+            console.error("Error getting current location:", geoError);
+            setError(new Error("Unable to retrieve current location. Defaulting to Colombo."));
+            setLocation('Colombo,Sri Lanka');
+          });
         } else {
-          setDefaultLocationType('custom');
-          setCustomDefaultLocation(savedDefaultLocation);
-          initialLocation = savedDefaultLocation;
-          setLocation(initialLocation);
+          setError(new Error("Geolocation not supported. Defaulting to Colombo."));
+          setLocation('Colombo,Sri Lanka');
         }
+      } else {
+        setDefaultLocationType('custom');
+        setCustomDefaultLocation(savedDefaultLocation);
+        setLocation(savedDefaultLocation);
       }
+    } else {
+      setLocation('Colombo,Sri Lanka');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-      if (!initialLocation) return; // Should not happen if a default is always set or tried
-
-      setLoading(true);
-      setError(null);
-
-      try {
-        const currentWeatherResponse = await fetch(`https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${initialLocation}&aqi=yes`);
-        if (!currentWeatherResponse.ok) {
-          throw new Error(`HTTP error! status: ${currentWeatherResponse.status} for current weather`);
-        }
-        const currentData = await currentWeatherResponse.json();
-        setWeatherData(currentData);
-
-        const forecastResponse = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${initialLocation}&days=3&alerts=yes&aqi=yes`);
-        if (!forecastResponse.ok) {
-          throw new Error(`HTTP error! status: ${forecastResponse.status} for forecast`);
-        }
-        const forecastData = await forecastResponse.json();
-        setForecastData(forecastData);
-        setAlertsData(forecastData.alerts?.alert || []);
-
-        const today = new Date().toISOString().slice(0, 10);
-        const astronomyResponse = await fetch(`https://api.weatherapi.com/v1/astronomy.json?key=${apiKey}&q=${initialLocation}&dt=${today}`);
-        if (!astronomyResponse.ok) {
-          throw new Error(`HTTP error! status: ${astronomyResponse.status} for astronomy`);
-        }
-        const astronomyData = await astronomyResponse.json();
-        setAstronomyData(astronomyData.astronomy.astro);
-
-      } catch (error) {
-        setError(error);
-        console.error("Error fetching all weather data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAllWeatherData();
-  }, [location, apiKey]);
+  useEffect(() => {
+    fetchAllWeatherData(location);
+  }, [location, fetchAllWeatherData]);
 
   const handleSearchSubmit = (event) => {
     event.preventDefault();
@@ -169,13 +165,24 @@ function WeatherDisplay({ setThemeMode, themeMode }) {
   const handleSaveDefaultLocation = () => {
     if (defaultLocationType === 'current') {
       Cookies.set('defaultLocation', 'current_location', { expires: 365 });
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          const { latitude, longitude } = position.coords;
+          setLocation(`${latitude},${longitude}`);
+        }, (geoError) => {
+          console.error("Error getting current location:", geoError);
+          setError(new Error("Unable to retrieve current location. Defaulting to Colombo."));
+          setLocation('Colombo,Sri Lanka');
+        });
+      } else {
+        setError(new Error("Geolocation not supported. Defaulting to Colombo."));
+        setLocation('Colombo,Sri Lanka');
+      }
     } else {
       Cookies.set('defaultLocation', customDefaultLocation, { expires: 365 });
+      setLocation(customDefaultLocation);
     }
     setOpenLocationModal(false);
-    // Reload weather data based on new default
-    // This will trigger the useEffect, which will read the cookie again
-    setLocation(defaultLocationType === 'current' ? 'current_location' : customDefaultLocation);
   };
 
   const handleOpenChat = () => {
@@ -283,32 +290,60 @@ function WeatherDisplay({ setThemeMode, themeMode }) {
         handleSaveDefaultLocation={handleSaveDefaultLocation}
       />
 
-      <Container maxWidth="sm" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-        <LocationSearchBar
-          searchInputValue={searchInputValue}
-          suggestions={suggestions}
-          handleInputChange={handleInputChange}
-          handleLocationSelect={handleLocationSelect}
-          handleSearchSubmit={handleSearchSubmit}
-        />
+      <Container maxWidth={false} sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', px: 2, boxSizing: 'border-box' }}>
+        {/* Centered Search Bar */}
+        <Box sx={{ width: '100%', maxWidth: 600, mx: 'auto', mb: 3 }}>
+          <LocationSearchBar
+            searchInputValue={searchInputValue}
+            suggestions={suggestions}
+            handleInputChange={handleInputChange}
+            handleLocationSelect={handleLocationSelect}
+            handleSearchSubmit={handleSearchSubmit}
+          />
+        </Box>
 
-        <AlertsDisplay alertsData={alertsData} />
+        {/* Dashboard 12-column Grid */}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: 'repeat(12, 1fr)'
+            },
+            gap: { xs: 2, sm: 3 },
+            width: '100%',
+            maxWidth: 1200,
+            mx: 'auto',
+            mb: 4,
+            alignItems: 'stretch',
+          }}
+        >
+          {/* Current Weather: 7 cols on desktop */}
+          <Box className="dashboard-card current-weather-card" sx={{ gridColumn: { xs: '1', sm: 'span 7' }, gridRow: { xs: '2', sm: '1' }, p: 3, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 2 }}>
+            <CurrentWeatherCard current={current} geoLoc={geoLoc} unit={unit} />
+          </Box>
 
-        <CurrentWeatherCard current={current} geoLoc={geoLoc} unit={unit} />
+          {/* Hourly/Alerts: 5 cols on desktop */}
+          <Box className="dashboard-card hourly-alerts-card" sx={{ gridColumn: { xs: '1', sm: '8 / span 5' }, gridRow: { xs: '3', sm: '1' }, display: 'flex', flexDirection: 'column', gap: 2, p: 3, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 2 }}>
+            <HourlyTemperatureChart hourlyData={hourlyData} unit={unit} />
+            <AlertsDisplay alertsData={alertsData} />
+          </Box>
 
-        {astronomyData && (
-          <AstronomyCard astronomyData={astronomyData} />
-        )}
+          {/* Astronomy: 4 cols on desktop */}
+          <Box className="dashboard-card astronomy-card" sx={{ gridColumn: { xs: '1', sm: 'span 4' }, gridRow: { xs: '4', sm: '2' }, p: 3, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 2 }}>
+            {astronomyData && <AstronomyCard astronomyData={astronomyData} />}
+          </Box>
 
-        <ForecastDisplay
-          forecastData={forecastData}
-          unit={unit}
-          expandedDay={expandedDay}
-          handleExpandClick={handleExpandClick}
-        />
-
-        <HourlyTemperatureChart hourlyData={hourlyData} unit={unit} />
-
+          {/* Forecast: 8 cols on desktop */}
+          <Box className="dashboard-card forecast-card" sx={{ gridColumn: { xs: '1', sm: '5 / span 8' }, gridRow: { xs: '5', sm: '2' }, p: 3, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 2 }}>
+            <ForecastDisplay
+              forecastData={forecastData}
+              unit={unit}
+              expandedDay={expandedDay}
+              handleExpandClick={handleExpandClick}
+            />
+          </Box>
+        </Box>
       </Container>
 
       <ChatWindow open={openChat} handleClose={handleCloseChat} />
@@ -316,6 +351,7 @@ function WeatherDisplay({ setThemeMode, themeMode }) {
       <Fab
         color="primary"
         aria-label="chat"
+        data-testid="chat-fab"
         sx={{
           position: 'fixed',
           bottom: 16,
