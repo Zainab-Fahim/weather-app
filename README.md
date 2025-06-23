@@ -2,6 +2,15 @@
 
 This project is a full-stack weather application with a React frontend and an Express backend. The backend proxies requests to external weather and chat APIs and CORS issues.
 
+## Features
+
+- 🌗 **Theme Switching:** Toggle between light and dark mode from the settings menu.
+- 🌡️ **Temperature Units:** Instantly switch between Celsius and Fahrenheit.
+- 📍 **Default Location:** Set your default location to your current geolocation or a custom city/zip/IP. Preferences are saved in cookies.
+- ⚙️ **Settings Menu:** Centralized menu for theme, units, and default location.
+- 💬 **Chat Window:** Ask weather-related questions via an integrated chat (floating button at bottom right).
+- 📱 **Responsive Design:** Optimized for both desktop and mobile devices.
+
 ## Folder Structure
 
 - `client/` — React frontend
@@ -65,7 +74,34 @@ REACT_APP_WEATHER_CHAT_CLIENT_SECRET=your_client_secret_here
 
 - The React app will be available at [http://localhost:3000](http://localhost:3000)
 - The Express server will run at [http://localhost:5050](http://localhost:5050)
+- Use the **settings icon** (top right) to:
+  - Switch between light/dark mode
+  - Change temperature units (°C/°F)
+  - Set your default location (current or custom)
+- Click the **chat button** (bottom right) to open the weather chat assistant.
+- Preferences for theme, units, and default location are saved (using cookies/localStorage) and persist across sessions.
 - The backend proxies token and chat requests to the external API, so your frontend never deals with CORS issues or secrets directly.
+
+---
+
+## Customization
+
+- **Theme:** Your selected theme (light/dark) is saved in localStorage.
+- **Units:** Temperature unit preference is saved in cookies.
+- **Default Location:** Set to your current geolocation or a custom value; saved in cookies for persistence.
+
+---
+
+## Testing
+
+- Run frontend tests from the `client/` directory:
+  ```bash
+  npm test
+  ```
+- Run backend tests from the `server/` directory:
+  ```bash
+  npm test
+  ```
 
 ---
 
