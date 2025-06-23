@@ -2,15 +2,19 @@ const express = require('express');
 const cors = require('cors');
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const app = express();
-const PORT = 5050;
-
+const PORT = process.env.PORT || 5050;
+const serverless = require('serverless-http');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 app.use(cors({
-  origin: 'http://localhost:3000',
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: 'http://localhost:3000',  // or '*' for quick testing
+  methods: ['GET','POST','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization']
 }));
+app.options('*', cors());  // make sure preflight is always answered
+
+app.options('*', cors()); // Enable pre-flight for all routes
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
@@ -74,6 +78,4 @@ app.post('/api/token', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-}); 
+module.exports = serverless(app);
