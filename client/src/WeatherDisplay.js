@@ -292,7 +292,14 @@ function WeatherDisplay({ setThemeMode, themeMode }) {
 
       <Container maxWidth={false} sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', px: 2, boxSizing: 'border-box' }}>
         {/* Centered Search Bar */}
-        <Box sx={{ width: '100%', maxWidth: 600, mx: 'auto', mb: 3 }}>
+        <Box sx={{ 
+          width: '100%', 
+          maxWidth: { xs: '95%', sm: 600 }, 
+          mx: 'auto', 
+          mb: 3,
+          mt: { xs: 2, sm: 3 },
+          px: { xs: 1, sm: 2 }
+        }}>
           <LocationSearchBar
             searchInputValue={searchInputValue}
             suggestions={suggestions}

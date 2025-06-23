@@ -17,9 +17,32 @@ function ForecastDisplay({ forecastData, unit, expandedDay, handleExpandClick })
   }
 
   return (
-    <Box sx={{ width: '100%', maxWidth: 900, overflowX: 'auto', pb: 1 }} display="flex" flexDirection="row" justifyContent={{ xs: 'flex-start', sm: 'space-around' }}>
+    <Box
+      sx={{
+        width: '100%',
+        maxWidth: 900,
+        overflowX: { xs: 'auto', sm: 'visible' },
+        pb: 1,
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: { xs: 'flex-start', sm: 'space-around' },
+        gap: 2,
+      }}
+    >
       {forecastData.forecast.forecastday.map((day) => (
-        <Grid item xs={12} sm={4} key={day.date} sx={{ textAlign: 'center', p: 1, flexShrink: 0, width: { xs: '380px', sm: 'auto' } }}>
+        <Grid
+          item
+          xs={12}
+          sm={4}
+          key={day.date}
+          sx={{
+            textAlign: 'center',
+            p: 1,
+            flexShrink: 0,
+            minWidth: { xs: 260, sm: 'auto' },
+            width: { xs: 260, sm: 'auto' },
+          }}
+        >
           <Card
             variant="outlined"
             sx={{ cursor: 'pointer', bgcolor: theme.palette.background.default, borderRadius: 2, p: 2, transition: 'background-color 0.3s',

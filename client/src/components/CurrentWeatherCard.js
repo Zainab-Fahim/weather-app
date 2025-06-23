@@ -15,7 +15,7 @@ function CurrentWeatherCard({ current, geoLoc, unit }) {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Typography variant="h5" component="div" gutterBottom align="center" sx={{ fontWeight: 'bold' }} color="text.primary">
+      <Typography variant="h5" component="div" gutterBottom align="center" sx={{ fontWeight: 'bold', fontSize: { xs: '1.1rem', sm: '1.5rem' } }} color="text.primary">
         Current Weather in {geoLoc.name}, {geoLoc.country}
       </Typography>
       <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', my: 2 }}>
@@ -24,16 +24,16 @@ function CurrentWeatherCard({ current, geoLoc, unit }) {
             <img
               src={`https:${current.condition.icon}`}
               alt={current.condition.text}
-              style={{ width: '100px', height: '100px' }}
+              style={{ width: '70px', height: '70px', maxWidth: '100%', maxHeight: '100%', minWidth: 50, minHeight: 50 }}
             />
           ) : (
             getWeatherIcon(current.condition.code, current.is_day)
           )}
         </Box>
-        <Typography variant="h2" component="span" sx={{ mt: 1, mb: 1, fontWeight: 'bold' }} color="text.primary">
+        <Typography variant="h2" component="span" sx={{ mt: 1, mb: 1, fontWeight: 'bold', fontSize: { xs: '2rem', sm: '3rem' } }} color="text.primary">
           {unit === 'celsius' ? `${current.temp_c}°C` : `${current.temp_f}°F`}
         </Typography>
-        <Typography variant="h6" color="text.secondary" align="center" sx={{ fontStyle: 'italic' }}>
+        <Typography variant="h6" color="text.secondary" align="center" sx={{ fontStyle: 'italic', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
           {current.condition.text}
         </Typography>
       </Box>
